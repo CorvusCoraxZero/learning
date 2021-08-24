@@ -1,14 +1,11 @@
 package com.zero.dag;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ql.util.express.DefaultContext;
 import com.ql.util.express.ExpressRunner;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -16,8 +13,7 @@ import java.util.List;
  */
 public class TestDag {
     public static void main(String[] args) throws Exception {
-
-        List<DagText> texts = createDagTextList("[\n" +
+        List<DagInfo> texts = Translation.jsonToDagInfoList("[\n" +
                 "        {\n" +
                 "            \"nextNode\": [\n" +
                 "                \"avitorMap\"\n" +
@@ -26,11 +22,21 @@ public class TestDag {
                 "        },\n" +
                 "        {\n" +
                 "            \"nextNode\": [\n" +
-                "                \"schemaMap\"\n" +
+                "                \"schemaMap\",\n" +
+                "                \"conditionMap\"\n" +
                 "            ],\n" +
                 "            \"nodeName\": \"avitorMap\"\n" +
                 "        },\n" +
                 "        {\n" +
+                "            \"successNode\": [\n" +
+                "                \"KafkaSink\"\n" +
+                "            ],\n" +
+                "            \"failedNode\": [\n" +
+                "                \"clickhouseSink\"\n" +
+                "            ],\n" +
+                "            \"nodeName\": \"conditionMap\"\n" +
+                "        },\n" +
+                "         {\n" +
                 "            \"nextNode\": [\n" +
                 "                \"KafkaSink\",\n" +
                 "                \"clickhouseSink\"\n" +
@@ -44,15 +50,67 @@ public class TestDag {
                 "            \"nodeName\": \"clickhouseSink\"\n" +
                 "        }\n" +
                 "    ]");
-        for (DagText text : texts) {
-            System.out.println(text);
-        }
 
-//        DagNode source = prepare();
-        DagNode source = createDag(texts);
+        List<NodeInfo> nodeInfos = Translation.jsonToNodeInfoList("[\n" +
+                "         {\n" +
+                "            \"function\": \"ConditionFunction\",\n" +
+                "            \"nodeName\": \"conditionMap\",\n" +
+                "            \"parallelism\": \"5\",\n" +
+                "            \"properties\": {\n" +
+                "                \"rule\": \"content.CurrentTemperature<10.1\"\n" +
+                "            }\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"function\": \"StringKafkaSource\",\n" +
+                "            \"nodeName\": \"kafkaSource\",\n" +
+                "            \"parallelism\": \"5\",\n" +
+                "            \"properties\": {\n" +
+                "                \"group.id\": \"1405050244499869697\",\n" +
+                "                \"topic\": \"transportMessageForDeviceLifeCycle,transportMessageForService,transportMessageForEvent,transportMessageForProperty\",\n" +
+                "                \"bootstrap.servers\": \"10.20.28.231:9092,10.20.28.232:9092,10.20.28.233:9092\"\n" +
+                "            }\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"function\": \"AviatorProcessFunction\",\n" +
+                "            \"nodeName\": \"avitorMap\",\n" +
+                "            \"parallelism\": \"5\"" +
+                "        },\n" +
+                "        {\n" +
+                "            \"function\": \"StringKafkaSink\",\n" +
+                "            \"nodeName\": \"KafkaSink\",\n" +
+                "            \"parallelism\": \"5\",\n" +
+                "            \"properties\": {\n" +
+                "                \"topic\": \"1405001041595420673mytopic\",\n" +
+                "                \"bootstrap.servers\": \"10.20.28.231:9092,10.20.28.232:9092,10.20.28.233:9092\",\n" +
+                "                \"sinkType\": \"kafka\"\n" +
+                "            }\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"function\": \"SchemaProcessFunction\",\n" +
+                "            \"nodeName\": \"schemaMap\",\n" +
+                "            \"parallelism\": \"5\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"function\": \"ClickHouseSink\",\n" +
+                "            \"nodeName\": \"clickhouseSink\",\n" +
+                "            \"parallelism\": \"5\",\n" +
+                "            \"properties\": {\n" +
+                "                \"password\": \"123456\",\n" +
+                "                \"minIdle\": 10,\n" +
+                "                \"initialSize\": 10,\n" +
+                "                \"jdbcUrl\": \"jdbc:clickhouse://10.20.28.231:8123/test\",\n" +
+                "                \"driverName\": \"ru.yandex.clickhouse.ClickHouseDriver\",\n" +
+                "                \"sinkType\": \"clickhouse\",\n" +
+                "                \"tableName\": \"rule_1405050244499869697\",\n" +
+                "                \"username\": \"default\",\n" +
+                "                \"maxActive\": 100\n" +
+                "            }\n" +
+                "        }\n" +
+                "    ]");
+
+        DagNode source = Translation.dagInfoToDagNode(texts);
+        Translation.addNodeInfoToDagNode(nodeInfos,source);
         generateRunner(source);
-
-//        createJson();
     }
 
     /**
@@ -60,11 +118,11 @@ public class TestDag {
      * @return
      */
     public static DagNode prepare(){
-        DagNode source = new DagNode("kafkaSource", new ArrayList<DagNode>());
-        DagNode schemaMap = new DagNode("schemaMap", new ArrayList<DagNode>());
-        DagNode avitorMap = new DagNode("avitorMap", new ArrayList<DagNode>());
-        DagNode kafkaSink = new DagNode("kafkaSink", null);
-        DagNode clickhouseSink = new DagNode("clickhouseSink", null);
+        DagNode source = new DagNode("kafkaSource");
+        DagNode schemaMap = new DagNode("schemaMap");
+        DagNode avitorMap = new DagNode("avitorMap");
+        DagNode kafkaSink = new DagNode("kafkaSink");
+        DagNode clickhouseSink = new DagNode("clickhouseSink");
         source.addNextNode(schemaMap);
         schemaMap.addNextNode(avitorMap);
         avitorMap.addNextNode(kafkaSink);
@@ -80,13 +138,15 @@ public class TestDag {
         // QLExpress
         ExpressRunner runner = new ExpressRunner();
         DefaultContext<String,Object> context = new DefaultContext<>();
-        StringBuilder exp = new StringBuilder();
-
-        generateExpress(source, context, exp);
+        String exp = Translation.dagNodeToQl(source, context);
         System.out.println(exp);
 
-//        context.put("kafkaSource",source);
-//        exp.append("kafkaSource.speak(); {kafkaSource.speak(); kafkaSource.speak();}");
+        runner.addFunctionOfClassMethod("StringKafkaSource",TestDag.class.getName(),"StringKafkaSource",new String[]{"String","String","String"},null);
+        runner.addFunctionOfClassMethod("AviatorProcessFunction",TestDag.class.getName(),"AviatorProcessFunction",new String[]{},null);
+        runner.addFunctionOfClassMethod("SchemaProcessFunction",TestDag.class.getName(),"SchemaProcessFunction",new String[]{},null);
+        runner.addFunctionOfClassMethod("StringKafkaSink",TestDag.class.getName(),"StringKafkaSink",new String[]{"String","String","String","String"},null);
+        runner.addFunctionOfClassMethod("ClickHouseSink",TestDag.class.getName(),"ClickHouseSink",new String[]{"String","String","String","String","String","String","String","String","String"},null);
+        runner.addFunctionOfClassMethod("ConditionFunction",TestDag.class.getName(),"ConditionFunction",new String[]{"String"},null);
 
         // 执行QLExpress
         Object executeResult = runner.execute(exp.toString(), context, null, true, false);
@@ -94,50 +154,34 @@ public class TestDag {
         return runner;
     }
 
-    /**
-     * 生成 QLExpress
-     * @return
-     */
-    public static void generateExpress(DagNode dagNode, DefaultContext<String,Object> context,StringBuilder exp) throws Exception {
-        if (dagNode == null) return;
-        context.put(dagNode.getNodeName(),dagNode);
-        exp.append(dagNode.getNodeName() + ".speak();"); // 节点要执行的方法
-        if (dagNode.getNextNode() != null){
-            exp.append(" {");
-            for (DagNode nextNode : dagNode.getNextNode()) {
-                generateExpress(nextNode,context,exp);
-                exp.append(" ");
-            }
-            exp.append(" }");
-        }else return;
+    public String StringKafkaSource(String groupId,String topic,String servers){
+        System.out.println("StringKafkaSource++ groupID:" + groupId + " topic:" + topic + " servers:" + servers );
+        return "StringKafkaSource";
     }
 
-    /**
-     *  解析json生成Dag图
-     */
-    public static List<DagText> createDagTextList(String jsonStr) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<DagText> dagNodes = objectMapper.readValue(jsonStr, new TypeReference<List<DagText>>() {});
-        return dagNodes;
+    public boolean ConditionFunction(String rule){
+        System.out.println("ConditionFunction++ rule:" + rule);
+        return false;
     }
 
-    public static DagNode createDag(List<DagText> list){
-        HashMap<String, DagNode> map = new HashMap<>();
-        // 创建所有的DagNode 但是不指定nextNode
-        for (DagText dagText : list) {
-            map.put(dagText.getNodeName(),new DagNode(dagText.getNodeName()));
-        }
-        // 给所有的DagNode 指定nextNode
-        for (DagText dagText : list) {
-            DagNode node = map.get(dagText.getNodeName());
-            if (dagText.getNextNode() != null){
-                for (String name : dagText.getNextNode()) {
-                    node.getNextNode().add(map.get(name));
-                }
-            }
-        }
-        // 返回sourceNode
-        return map.get(list.get(0).getNodeName());
+    public String AviatorProcessFunction(){
+        System.out.println("AviatorProcessFunction++");
+        return "AviatorProcessFunction";
+    }
+
+    public String SchemaProcessFunction(){
+        System.out.println("SchemaProcessFunction++");
+        return "SchemaProcessFunction";
+    }
+
+    public String StringKafkaSink(String topic,String servers,String sinkType,String data){
+        System.out.println("StringKafkaSink++ topic:" + topic + " servers:" + servers + " sinkType:" + sinkType + "data:" + data);
+        return "StringKafkaSink";
+    }
+
+    public String ClickHouseSink(String password, String minIdle,String initialSize,String jdbcUrl,String driverName,String tableName,String username,String maxActive,String data){
+        System.out.println("ClickHouseSink++ password:" + " data:" + data + "太多啦不想写啦！！！");
+        return "ClickHouseSink";
     }
 
     /**
@@ -148,27 +192,27 @@ public class TestDag {
         next.add("1");
         next.add("2");
 
-        DagText dagText = new DagText();
-        dagText.setNodeName("0");
-        dagText.setNextNode(next);
+        DagInfo dagInfo = new DagInfo();
+        dagInfo.setNodeName("0");
+        dagInfo.setNextNode(next);
 
-        DagText dagText1 = new DagText();
-        dagText1.setNodeName("1");
-        dagText1.setNextNode(next);
+        DagInfo dagInfo1 = new DagInfo();
+        dagInfo1.setNodeName("1");
+        dagInfo1.setNextNode(next);
 
-        DagText dagText2 = new DagText();
-        dagText2.setNodeName("2");
-        dagText2.setNextNode(next);
+        DagInfo dagInfo2 = new DagInfo();
+        dagInfo2.setNodeName("2");
+        dagInfo2.setNextNode(next);
 
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        ArrayList<DagText> list = new ArrayList<>();
-        list.add(dagText);
-        list.add(dagText1);
-        list.add(dagText2);
+        ArrayList<DagInfo> list = new ArrayList<>();
+        list.add(dagInfo);
+        list.add(dagInfo1);
+        list.add(dagInfo2);
 
-        for (DagText text : list) {
+        for (DagInfo text : list) {
             System.out.println(text);
         }
 
