@@ -175,6 +175,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return manager;
     }*/
 
+    /**
+     * 使用spring data jpa 或 mybatis
+     */
+    /*@Autowired
+    UserService userService;
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userService);
+    }*/
 
     /**
      * 角色继承

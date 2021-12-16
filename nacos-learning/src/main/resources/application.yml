@@ -1,0 +1,16 @@
+server:
+  port: 8088
+spring:
+  application:
+    name: nacos-provider
+  cloud:
+    nacos:
+      #nacos配置中心配置
+      config:
+        #配置中心地址
+        server-addr: 10.20.178.241:8848
+        #默认的配置文件扩展名
+        file-extension: yaml
+      #服务发现地址
+      discovery:
+        server-addr: 10.20.178.241:8848
