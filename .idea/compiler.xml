@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <option name="BUILD_PROCESS_HEAP_SIZE" value="10240" />
+    <option name="BUILD_PROCESS_ADDITIONAL_VM_OPTIONS" value="-Xms8192M -Xms8192M -Xss512k" />
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="qlExpression" />
+        <module name="aop" />
+        <module name="oauth-client" />
+        <module name="springsecurity" />
+        <module name="oauth-server" />
+        <module name="nacos-learning" />
+        <module name="netty" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="oauth-client" options="-parameters" />
+      <module name="oauth-server" options="-parameters" />
+      <module name="springsecurity" options="-parameters" />
+    </option>
+  </component>
+</project>
