@@ -9,21 +9,25 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="qlExpression" />
-        <module name="aop" />
         <module name="oauth-client" />
-        <module name="springsecurity" />
         <module name="oauth-server" />
-        <module name="nacos-learning" />
         <module name="netty" />
+        <module name="zeromq" />
+        <module name="nacos-learning" />
+        <module name="aop" />
+        <module name="springsecurity" />
+        <module name="qlExpression" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="aop" options="-parameters" />
+      <module name="nacos-learning" options="-parameters" />
       <module name="oauth-client" options="-parameters" />
       <module name="oauth-server" options="-parameters" />
       <module name="springsecurity" options="-parameters" />
+      <module name="zeromq" options="-parameters" />
     </option>
   </component>
 </project>
