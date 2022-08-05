@@ -1,6 +1,7 @@
 package com.example.demo.Interceptor;
 
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -23,7 +24,9 @@ public class MyInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
         System.out.println("MyInterceptor afterCompletion 结束后");
+        System.out.println(handlerMethod.getMethod().getName());
         HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
     }
 }
