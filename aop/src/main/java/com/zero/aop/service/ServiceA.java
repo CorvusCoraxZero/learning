@@ -21,8 +21,8 @@ public class ServiceA {
 
     public void saySomeThing() {
         System.out.println("我是A服务" + message);
-        applicationContext.publishEvent(new ContextRefreshedEvent(applicationContext));
         applicationContext.publishEvent(new TestEvent(this));
+        applicationContext.publishEvent(new ContextRefreshedEvent(applicationContext));
     }
 
     @EventListener(ContextRefreshedEvent.class)

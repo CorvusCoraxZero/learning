@@ -11,8 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ServiceC  {
-    @Async
-    @Order(Ordered.HIGHEST_PRECEDENCE)
+
     @EventListener(TestEvent.class)
     public void myEventHandler(TestEvent event) {
         // 处理事件的方法块
