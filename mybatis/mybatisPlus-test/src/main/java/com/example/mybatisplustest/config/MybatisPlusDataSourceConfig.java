@@ -49,7 +49,7 @@ public class MybatisPlusDataSourceConfig {
         configuration.setCacheEnabled(false);
         configuration.setLogImpl(StdOutImpl.class);
 
-        sessionFactoryBean.setPlugins(new Interceptor[]{plusConfig.paginationInterceptor()}); //Mybatis 插件扩展
+        sessionFactoryBean.setPlugins(new Interceptor[]{plusConfig.mybatisPlusInterceptor()}); //Mybatis 插件扩展
         sessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver()
                 .getResources(MybatisPlusDataSourceConfig.MAPPER_LOCATION));
         return sessionFactoryBean.getObject();
