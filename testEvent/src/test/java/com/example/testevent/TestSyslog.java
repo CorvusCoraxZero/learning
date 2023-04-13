@@ -84,7 +84,7 @@ public class TestSyslog {
         for (Iterator<Integer> it = list.stream().iterator(); it.hasNext(); ) {
             Integer integer = it.next();
         }
-        Stream<String> stream = Files.lines();
+        // Stream<String> stream = Files.lines();
 
     }
 

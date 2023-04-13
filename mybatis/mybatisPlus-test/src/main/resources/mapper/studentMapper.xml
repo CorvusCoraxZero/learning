@@ -2,4 +2,32 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.mybatisplustest.mapper.StudentMapper">
 
+    <select id="testParam" resultType="com.example.mybatisplustest.entity.Student">
+        select * from student where id = ${id}
+        <if test="option.num > 0">
+            and age = ${option.num}
+        </if>
+    </select>
+
+    <select id="testParamNoObject"  resultType="com.example.mybatisplustest.entity.Student">
+        select * from student where id = 1
+        <if test="option.num > 0">
+            and age = ${option.num}
+        </if>
+    </select>
+
+    <select id="testParamPage" resultType="com.example.mybatisplustest.entity.Student">
+        select * from student where id = 1
+        <if test="option.num > 0">
+            and age = ${option.num}
+        </if>
+    </select>
+
+    <select id="testParamObjectWithMap"  resultType="com.example.mybatisplustest.entity.Student">
+        select * from student where id = 1
+        <if test="option.params.age != null">
+            and age = #{option.params.age}
+        </if>
+    </select>
+
 </mapper>

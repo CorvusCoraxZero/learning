@@ -10,17 +10,17 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 
 @Component
-public class ServerA{
+public class ServerA {
     @Autowired
     ApplicationContext context;
 
-    public void publishOnRunning(){
+    public void publishOnRunning() {
         System.out.println("A在初始阶段发送了事件");
         context.publishEvent(new MyEvent(this));
     }
 
     @PostConstruct
-    public void publishOnInit(){
+    public void publishOnInit() {
         System.out.println("A在初始阶段发送了事件");
         context.publishEvent(new MyEvent(this));
         context.publishEvent(new ContextRefreshedEvent(context));
