@@ -40,4 +40,45 @@ public class SendController {
         }
         return "发送成功";
     }
+
+    @GetMapping("/testCookie")
+    public String testCookie(HttpServletRequest request, HttpServletResponse response) {
+        if (request.getCookies() != null && request.getCookies().length >= 1){
+            for (Cookie cookie : request.getCookies()) {
+                System.out.println(cookie.getName());
+            }
+        }
+
+        ResponseCookie build = ResponseCookie.from("TestNew","123456").secure(true).httpOnly(true).sameSite("Lax").build();
+        ResponseCookie.from("TestNew","123456");
+
+        if (request.getCookies() != null && request.getCookies().length >= 1){
+            for (Cookie cookie : request.getCookies()) {
+                System.out.println(cookie.getName());
+            }
+        }
+
+        response.addCookie(new Cookie("newCookie","new-new"));
+        response.addCookie(new Cookie("newCookie2","new-new"));
+
+        // 为Cookie添加安全属性
+        if (response.containsHeader(HttpHeaders.SET_COOKIE)){
+            List<String> cookies = response.getHeaders(HttpHeaders.SET_COOKIE).stream().collect(Collectors.toList());
+            // 清空数据
+            response.setHeader(HttpHeaders.SET_COOKIE,"");
+            System.out.println("尝试从响应头获取");
+            for (int i = 0; i < cookies.size(); i++) {
+                String cookieStr = cookies.get(i);
+                cookieStr += "; Secure; HttpOnly; SameSite=Lax";
+                if (i == 0){
+                    // 清空原有的cookie
+                    response.setHeader(HttpHeaders.SET_COOKIE,cookieStr);
+                }else {
+                    response.addHeader(HttpHeaders.SET_COOKIE,cookieStr);
+                }
+            }
+        }
+
+        return "发送成功";
+    }
 }
