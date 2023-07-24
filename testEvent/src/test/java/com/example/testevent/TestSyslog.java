@@ -72,8 +72,8 @@ public class TestSyslog {
         }
         list.stream().sorted(Comparator.comparing(a -> a, (a, b) -> b - a)).forEach(System.out::println);
     }
-    @Test
 
+    @Test
     void testToMap() {
         ArrayList<Integer> list = new ArrayList();
         Random random = new Random();
@@ -87,6 +87,5 @@ public class TestSyslog {
         // Stream<String> stream = Files.lines();
 
     }
-
 
 }
